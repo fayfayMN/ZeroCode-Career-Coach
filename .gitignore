@@ -9,6 +9,9 @@ env/
 
 # App artifacts
 .cache/
+_dev_*.html           # local dev test outputs
+
+# Generated dossiers (user downloads)
 *.html
 !templates/*.j2
 
