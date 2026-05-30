@@ -87,7 +87,9 @@ relevant modules into its system prompt — **edit a markdown file to change beh
 
 ---
 
-## ⚡ Quick start (local — recommended)
+## ⚡ Quick start
+
+### Option A: Local Ollama (recommended — free, private) 🏠
 
 > Requires **Python 3.11+** and **[Ollama](https://ollama.com/download)**.
 
@@ -103,6 +105,33 @@ pip install -r requirements-voice.txt   # voice: mic + Whisper + TTS (local only
 streamlit run app.py                    # → http://localhost:8501
 ```
 
+### Option B: Free hosted API (no Ollama install) ☁️
+
+> Just Python 3.11+ and a **free API key** (30 seconds to set up).
+
+```bash
+# 1. Get a free API key at https://platform.deepseek.com (or https://console.groq.com/keys)
+# 2. Copy the env template and paste your key
+cp .env.example .env
+#    ↑ edit CC_HOSTED_API_KEY=sk-your-key-here
+
+# 3. Install + run
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py                    # no Ollama needed!
+```
+
+The app auto-loads `.env` and switches to hosted mode when it sees `CC_PROVIDER=hosted`.
+Voice features are disabled in this mode (cloud hosts can't run local Whisper).
+
+| | Local Ollama | Hosted API |
+|--|:--:|:--:|
+| Cost | Free | Free tier |
+| Privacy | 100% local | Sent to provider |
+| Voice mock | ✅ | ❌ (text only) |
+| Match embeddings | ✅ | keyword-only |
+| Setup time | ~10 min | ~30 sec |
+
 <details>
 <summary><b>Running Ollama inside WSL?</b> (click)</summary>
 
@@ -115,8 +144,7 @@ source .venv/bin/activate
 streamlit run app.py        # open http://localhost:8501 in Windows
 ```
 Only if you run the app from **Windows** while Ollama stays in WSL do you need
-`CC_OLLAMA_HOST=http://$(wsl hostname -I):11434`.
-</details>
+`CC_OLLAMA_HOST=http://$(wsl hostname -I):11434`.</details>
 
 ---
 

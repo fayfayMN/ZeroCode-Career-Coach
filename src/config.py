@@ -12,6 +12,20 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
+
+# Auto-load .env from project root if present (no manual export needed).
+# This lets users drop a .env file with CC_PROVIDER=hosted + their API key
+# and run the app without touching their shell or Streamlit secrets.
+try:
+    from dotenv import load_dotenv
+
+    _root = Path(__file__).resolve().parent.parent
+    _env_file = _root / ".env"
+    if _env_file.exists():
+        load_dotenv(_env_file)
+except ImportError:
+    pass  # python-dotenv optional — env vars still work
 
 
 def _env(name: str, default: str) -> str:

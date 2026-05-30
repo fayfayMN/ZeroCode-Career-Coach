@@ -10,6 +10,7 @@ pydantic>=2.7
 
 # LLM clients
 requests>=2.31          # Ollama REST + hosted fallback (Groq/OpenRouter)
+python-dotenv>=1.0      # auto-load .env for easy local hosted setup
 
 # Document parsing
 pdfplumber>=0.11
