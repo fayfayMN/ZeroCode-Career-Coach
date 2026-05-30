@@ -93,8 +93,9 @@ ollama pull nomic-embed-text
 
 # 2. Install + run
 python -m venv .venv && source .venv/bin/activate      # Windows: .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-streamlit run app.py                                   # → http://localhost:8501
+pip install -r requirements.txt          # core deps
+pip install -r requirements-voice.txt   # voice: mic + Whisper + TTS (local only)
+streamlit run app.py                    # → http://localhost:8501
 ```
 
 <details>

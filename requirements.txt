@@ -1,29 +1,27 @@
-# Career Coach — runtime dependencies
-# Core UI
+# ZeroCode Career Coach — core dependencies
+# Works locally (Ollama) and on Streamlit Community Cloud (hosted model).
+# For voice features (local use only), also run: pip install -r requirements-voice.txt
+
+# UI
 streamlit>=1.36
 
-# Data validation / contracts
+# Data validation
 pydantic>=2.7
 
 # LLM clients
-ollama>=0.3.0          # local models (default provider)
-requests>=2.31         # hosted fallback (Groq/OpenRouter) + raw REST
+requests>=2.31          # Ollama REST + hosted fallback (Groq/OpenRouter)
 
 # Document parsing
-pdfplumber>=0.11       # PDF resumes
-python-docx>=1.1       # .docx resumes (read) + dossier .docx export if desired
+pdfplumber>=0.11
+python-docx>=1.1
 
 # Match scoring
-rapidfuzz>=3.9         # fuzzy keyword matching
-numpy>=1.26            # cosine similarity on embeddings
+rapidfuzz>=3.9
+numpy>=1.26
 
 # Templating (single-file HTML dossier)
 Jinja2>=3.1
-
-# Voice (optional but installed by default for local use)
-streamlit-mic-recorder>=0.0.8   # browser mic capture in Streamlit
-faster-whisper>=1.0             # local speech-to-text (no API key)
-edge-tts>=6.1                   # optional: coach reads questions aloud (free)
+markupsafe>=2.1
 
 # Dev / tests
 pytest>=8.0

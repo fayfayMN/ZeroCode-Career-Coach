@@ -21,7 +21,7 @@ Node is **not** needed.
 ```powershell
 # Setup
 python -m venv .venv ; .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+pip install -r requirements.txt ; pip install -r requirements-voice.txt  # voice: local only
 
 # Pull local models (one-time). Default chat model is qwen3:14b-q4_K_M.
 ollama pull qwen3:14b-q4_K_M ; ollama pull nomic-embed-text
