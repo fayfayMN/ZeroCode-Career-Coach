@@ -131,7 +131,7 @@ Free hosts can't run Ollama, so point the app at a free **hosted** model instead
 1. Push this repo to GitHub.
 2. Create an app on **[share.streamlit.io](https://share.streamlit.io)** → `app.py`.
 3. In **Settings → Secrets**, paste [`.streamlit/secrets.toml.example`](.streamlit/secrets.toml.example)
-   and add a free [Groq](https://console.groq.com) (or [OpenRouter](https://openrouter.ai)) key.
+   and add your [DeepSeek](https://platform.deepseek.com) API key (`sk-…`).
    This sets `CC_PROVIDER=hosted` and disables voice.
 4. Copy the resulting URL into the **[Live Demo](#-live-demo)** section above.
 
@@ -154,7 +154,9 @@ All settings come from `CC_*` environment variables (or Streamlit secrets):
 | `CC_CHAT_MODEL` | `qwen3:14b-q4_K_M` | local chat model |
 | `CC_EMBED_MODEL` | `nomic-embed-text` | local embedding model |
 | `CC_OLLAMA_HOST` | `http://localhost:11434` | Ollama endpoint |
-| `CC_HOSTED_API_KEY` | _(empty)_ | key for hosted/cloud mode |
+| `CC_HOSTED_BASE_URL` | DeepSeek URL | OpenAI-compatible endpoint for hosted mode |
+| `CC_HOSTED_API_KEY` | _(empty)_ | DeepSeek (or Groq/OpenRouter) key for hosted mode |
+| `CC_HOSTED_CHAT_MODEL` | `deepseek-chat` | model to use in hosted mode |
 | `CC_WHISPER_MODEL` | `base` | Whisper size (`tiny`…`large-v3`) |
 | `CC_WHISPER_DEVICE` | `cpu` | `cuda` for GPU (auto-falls back to CPU) |
 | `CC_ENABLE_VOICE` | `1` | `0` to hide voice features |
