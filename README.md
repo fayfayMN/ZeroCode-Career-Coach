@@ -8,8 +8,6 @@ voice-driven mock interviews, and a single downloadable dossier — all running 
 [Ollama](https://ollama.com) model. No API keys. No data leaves your machine.
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-live%20demo-FF4B4B?logo=streamlit&logoColor=white)](https://zerocode-career-coach-ccc9w2xqr8kgtmphjtl5uz.streamlit.app/)
-[![Ollama](https://img.shields.io/badge/Ollama-local%20LLM-000000?logo=ollama&logoColor=white)](https://ollama.com/)
 [![Tests](https://img.shields.io/badge/tests-13%20passing-brightgreen)](#-tests)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -17,17 +15,37 @@ voice-driven mock interviews, and a single downloadable dossier — all running 
 
 ---
 
-## 🚀 Live Demo
+## 🚦 Choose how to use it
 
-> **▶️ Try it here:** **[zerocode-career-coach.streamlit.app](https://zerocode-career-coach-ccc9w2xqr8kgtmphjtl5uz.streamlit.app/)**
->
-> ⚠️ Free public hosts (Streamlit Community Cloud, Hugging Face Spaces) **cannot run Ollama**, so
-> the hosted demo uses a free hosted model (Groq) and disables voice. **Run locally for the full,
-> private experience with voice.**
+This app runs **two ways**. Pick the one that fits:
+
+| ☁️ Try online (cloud demo) | 🏠 Run locally (full experience) |
+|:---|:---|
+| Click the link → **no install, no setup** | Install **Python + Ollama** → see below |
+| Uses DeepSeek API (free) | Uses **your local Ollama** (free, private) |
+| ❌ No voice, keyword-only matching | ✅ Voice mock interview, embedding scores |
+| **[Try it now →](https://zerocode-career-coach-ccc9w2xqr8kgtmphjtl5uz.streamlit.app/)** | ⬇️ **See Quick Start below** |
+
+> ⚠️ **The cloud demo cannot run Ollama.** Streamlit Cloud servers have no access to Ollama
+> on your machine. If you want voice, privacy, and full features, **run locally**.
 
 <div align="center">
 
 ![Career Coach demo walkthrough](docs/demo.gif)
+
+<details>
+<summary><b>📊 Feature comparison: cloud demo vs local Ollama</b></summary>
+
+| | Local Ollama | Cloud demo |
+|--|:--:|:--:|
+| Cost | Free | Free tier (DeepSeek API) |
+| Privacy | 100% local | Sent to DeepSeek |
+| Voice mock interview | ✅ via local Whisper | ❌ (text only) |
+| Match score with embeddings | ✅ full | keyword-only |
+| Setup time | ~10 min (install Ollama + pull model) | 0 — click and go |
+| Requires API key | No | Yes (free, included in deploy) |
+
+</details>
 
 ### 📸 Step-by-step screenshots
 
@@ -43,13 +61,13 @@ voice-driven mock interviews, and a single downloadable dossier — all running 
 
 ## ✨ What it does
 
-| Step | You get |
-|------|---------|
-| **1 · Setup** | Upload resume (PDF/DOCX/TXT), paste the JD, add company notes + a few personal notes. |
-| **2 · Fit & Strategy** | An **explainable match score** (0–100), matched vs. missing ATS keywords, honest strengths & gaps, culture-fit reflection questions, and a prioritized *"what to do next"* plan. |
-| **3 · Tailor Application** | Resume bullets rewritten with the **XYZ formula** (ATS keywords + quantified + *your* voice) and a personable, non-robotic cover letter. |
-| **4 · Interview Coach** | A tailored question bank + an **interactive mock interview you answer by voice** (local Whisper), with STAR feedback and follow-ups. |
-| **5 · Career Dossier** | Everything bundled into **one self-contained HTML file** — open offline, print to PDF. |
+| Step | What happens | What you do | What you get |
+|------|-------------|-------------|--------------|
+| **1 · Setup** | Upload resume + paste job description | Browse for your resume file (PDF/DOCX/TXT), type/paste the JD, optionally add company notes and your working-style preferences | Parsed resume text, saved job details |
+| **2 · Fit & Strategy** | Recruiter agent screens your fit | Click **"Analyze fit"** — the app runs the match score + LLM analysis | Score 0–100, matched/missing keywords, strengths & gaps, action plan |
+| **3 · Tailor Application** | Writer agent rewrites resume + cover letter | Click **"Generate tailored resume + cover letter"** | Improved resume bullets (XYZ formula), personable cover letter, LinkedIn suggestions |
+| **4 · Interview Coach** | Coach builds prep plan + mock interview | Click **"Build interview prep plan"**, then optionally start a mock interview (answer via text or voice) | Question bank, technical topics, STAR-graded answers with feedback |
+| **5 · Career Dossier** | Everything bundled into one HTML file | Click **"Download Career Dossier"** | Self-contained HTML file — open offline, print to PDF |
 
 **Why it's different:** the match score is **deterministic** (keyword coverage + embedding
 similarity), not an LLM guess — so it's reproducible and explainable. The LLM only adds judgement
@@ -84,6 +102,16 @@ A deliberate redesign from a sprawling 7-agent pipeline down to **3 agents + 1 d
 Google's XYZ formula, STAR, scoring rubrics) adapted from MIT collections like
 [Paramchoudhary/ResumeSkills](https://github.com/Paramchoudhary/ResumeSkills). Each agent loads the
 relevant modules into its system prompt — **edit a markdown file to change behaviour, no code change needed.**
+
+---
+
+## 🧭 How to use the app
+
+1. **Step 1 — Set up.** Upload your resume (PDF/DOCX/TXT), paste the job description, add optional company notes and your working-style preferences.
+2. **Step 2 — Check fit.** Click **"Analyze fit"** — the Recruiter agent scores your match (0–100), lists strengths, gaps, and ATS keywords.
+3. **Step 3 — Tailor.** Click **"Generate tailored resume + cover letter"** — the Writer rewrites your bullets and drafts a cover letter.
+4. **Step 4 — Practice.** Click **"Build interview prep plan"** for a question bank. Then start a mock interview — answer by **voice** (local) or text, get STAR feedback with a score.
+5. **Step 5 — Export.** Click **"Download Career Dossier"** — one HTML file with everything.
 
 ---
 
@@ -124,14 +152,6 @@ streamlit run app.py                    # no Ollama needed!
 The app auto-loads `.env` and switches to hosted mode when it sees `CC_PROVIDER=hosted`.
 Voice features are disabled in this mode (cloud hosts can't run local Whisper).
 
-| | Local Ollama | Hosted API |
-|--|:--:|:--:|
-| Cost | Free | Free tier |
-| Privacy | 100% local | Sent to provider |
-| Voice mock | ✅ | ❌ (text only) |
-| Match embeddings | ✅ | keyword-only |
-| Setup time | ~10 min | ~30 sec |
-
 <details>
 <summary><b>Running Ollama inside WSL?</b> (click)</summary>
 
@@ -166,14 +186,7 @@ Free hosts can't run Ollama, so point the app at a free **hosted** model instead
 3. In **Settings → Secrets**, paste [`.streamlit/secrets.toml.example`](.streamlit/secrets.toml.example)
    and add your [DeepSeek](https://platform.deepseek.com) API key (`sk-…`).
    This sets `CC_PROVIDER=hosted` and disables voice.
-4. Copy the resulting URL into the **[Live Demo](#-live-demo)** section above.
-
-| | Local (Ollama) | Public demo (hosted) |
-|--|:--:|:--:|
-| Cost | Free | Free tier |
-| Privacy | 100% local | Sent to provider |
-| Voice mock | ✅ | ❌ (text only) |
-| Match embeddings | ✅ | keyword-only |
+4. Copy the resulting URL into the **[Try online](#-choose-how-to-use-it)** section above.
 
 ---
 
