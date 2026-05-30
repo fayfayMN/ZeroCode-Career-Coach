@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# App artifacts
+.cache/
+*.html
+!templates/*.j2
+
+# Secrets / local config
+.env
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db

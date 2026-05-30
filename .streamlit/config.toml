@@ -1,0 +1,7 @@
+[theme]
+primaryColor = "#2563eb"
+base = "light"
+
+[server]
+# Larger uploads for resumes/PDFs
+maxUploadSize = 10

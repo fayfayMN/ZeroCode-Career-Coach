@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:/Users/GPU/Documents/ClaudeProjects/Career-Orchestrator-MultiAgent-Platform\" log --oneline -5)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Career Dossier — {{ cf.title_line }}</title>
+<style>
+  :root { --ink:#1f2933; --muted:#647382; --accent:#2563eb; --line:#e3e8ef; --bg:#ffffff; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+         color:#1f2933; max-width: 860px; margin: 0 auto; padding: 40px 28px; line-height:1.55; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; }
+  h2 { font-size: 1.25rem; margin: 36px 0 10px; border-bottom: 2px solid #2563eb;
+       padding-bottom: 6px; color:#1f2933; }
+  h3 { font-size: 1.02rem; margin: 18px 0 6px; color:#334155; }
+  .sub { color:#647382; margin: 0 0 18px; }
+  .card { border:1px solid #e5e9f0; border-radius:10px; padding:14px 16px; margin:10px 0; background:#fafbfc; }
+  .score-grid { display:flex; flex-wrap:wrap; gap:12px; margin:12px 0; }
+  .metric { flex:1 1 130px; border:1px solid #e5e9f0; border-radius:10px; padding:12px; text-align:center; }
+  .metric .num { font-size:1.6rem; font-weight:700; color:#2563eb; }
+  .metric .lbl { font-size:.78rem; color:#647382; text-transform:uppercase; letter-spacing:.03em; }
+  .overall { font-size:3rem; font-weight:800; color:#2563eb; line-height:1; }
+  .pill { display:inline-block; padding:3px 9px; border-radius:999px; font-size:.8rem; margin:3px 4px 3px 0; }
+  .pill.ok { background:#e7f6ec; color:#1b7a3d; }
+  .pill.gap { background:#fdeaea; color:#b3261e; }
+  ul { margin:6px 0 6px 2px; padding-left:20px; }
+  li { margin:4px 0; }
+  .green li::marker { color:#1b7a3d; }
+  .red li::marker { color:#b3261e; }
+  blockquote { border-left:3px solid #cbd5e1; margin:8px 0; padding:2px 14px; color:#475569; }
+  .letter { white-space:normal; background:#fafbfc; border:1px solid #e5e9f0; border-radius:10px; padding:18px 20px; }
+  .qa { border-left:3px solid #2563eb; padding:6px 14px; margin:12px 0; }
+  .small { font-size:.85rem; color:#647382; }
+  table { border-collapse:collapse; width:100%; margin:8px 0; }
+  td, th { border:1px solid #e5e9f0; padding:8px 10px; text-align:left; vertical-align:top; font-size:.92rem; }
+  th { background:#f1f5f9; }
+  @media print { body { padding:0; } h2 { page-break-after:avoid; } .card,.qa { page-break-inside:avoid; } }
+</style>
+</head>
+<body>
+
+<h1>Career Dossier</h1>
+<p class="sub">{{ cf.title_line }} &middot; generated {{ cf.created_at }}</p>
+
+{# ----------------------------------------------------------------- FIT #}
+{% if cf.fit %}
+<h2>1 &middot; Fit &amp; Strategy</h2>
+<div style="text-align:center; margin:10px 0;">
+  <div class="overall">{{ cf.fit.score.overall }}<span style="font-size:1.2rem;color:#647382;">/100</span></div>
+  <div class="small">overall match</div>
+</div>
+<div class="score-grid">
+  <div class="metric"><div class="num">{{ cf.fit.score.must_have_coverage }}%</div><div class="lbl">Must-haves</div></div>
+  <div class="metric"><div class="num">{{ cf.fit.score.nice_to_have_coverage }}%</div><div class="lbl">Nice-to-haves</div></div>
+  <div class="metric"><div class="num">{{ cf.fit.score.semantic_similarity }}%</div><div class="lbl">Semantic</div></div>
+  <div class="metric"><div class="num">{{ cf.fit.score.seniority_fit }}%</div><div class="lbl">Seniority</div></div>
+</div>
+
+{% if cf.fit.summary %}<div class="card"><strong>Recruiter's verdict.</strong> {{ cf.fit.summary }}</div>{% endif %}
+
+<h3>Keywords</h3>
+<p>
+  {% for k in cf.fit.keywords.matched %}<span class="pill ok">{{ k }}</span>{% endfor %}
+  {% for k in cf.fit.keywords.missing %}<span class="pill gap">{{ k }}</span>{% endfor %}
+</p>
+<p class="small">Green = found in your resume &middot; Red = in the JD but missing.</p>
+
+{% if cf.fit.strengths %}<h3>Strengths (green flags)</h3><ul class="green">{% for s in cf.fit.strengths %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
+{% if cf.fit.weaknesses %}<h3>Gaps to address</h3><ul class="red">{% for w in cf.fit.weaknesses %}<li>{{ w }}</li>{% endfor %}</ul>{% endif %}
+{% if cf.fit.new_grad_friendly %}<p><strong>Early-career friendliness:</strong> {{ cf.fit.new_grad_friendly }}</p>{% endif %}
+
+{% if cf.fit.culture_fit_questions %}
+<h3>Reflect on your fit</h3>
+<ul>{% for q in cf.fit.culture_fit_questions %}<li>{{ q }}</li>{% endfor %}</ul>
+{% endif %}
+
+{% if cf.fit.action_plan %}
+<h3>What you should do next</h3>
+<ol>{% for a in cf.fit.action_plan %}<li>{{ a }}</li>{% endfor %}</ol>
+{% endif %}
+{% endif %}
+
+{# ----------------------------------------------------------------- KIT #}
+{% if cf.kit %}
+<h2>2 &middot; Tailored Application</h2>
+
+{% if cf.kit.bullets %}
+<h3>Resume bullets</h3>
+<table>
+  <tr><th>Before</th><th>After (tailored)</th></tr>
+  {% for b in cf.kit.bullets %}
+  <tr><td>{{ b.original }}</td><td>{{ b.improved }}{% if b.keywords_used %}<br><span class="small">keywords: {{ b.keywords_used|join(", ") }}</span>{% endif %}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if cf.kit.cover_letter %}
+<h3>Cover letter</h3>
+<div class="letter">{{ cf.kit.cover_letter | nl2br }}</div>
+{% endif %}
+
+{% if cf.kit.linkedin_headline or cf.kit.linkedin_about %}
+<h3>LinkedIn</h3>
+{% if cf.kit.linkedin_headline %}<p><strong>Headline:</strong> {{ cf.kit.linkedin_headline }}</p>{% endif %}
+{% if cf.kit.linkedin_about %}<div class="card">{{ cf.kit.linkedin_about | nl2br }}</div>{% endif %}
+{% endif %}
+{% endif %}
+
+{# ----------------------------------------------------------------- INTERVIEW #}
+{% if cf.interview %}
+<h2>3 &middot; Interview Prep</h2>
+
+{% if cf.interview.questions %}
+<h3>Question bank</h3>
+{% for q in cf.interview.questions %}
+<div class="qa">
+  <strong>[{{ q.stage }}]</strong> {{ q.question }}<br>
+  {% if q.why_asked %}<span class="small"><em>Why:</em> {{ q.why_asked }}</span><br>{% endif %}
+  {% if q.answer_tips %}<span class="small"><em>Tips:</em> {{ q.answer_tips }}</span>{% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if cf.interview.technical_topics %}
+<h3>Technical topics to review</h3>
+<ul>{% for t in cf.interview.technical_topics %}<li>{{ t }}</li>{% endfor %}</ul>
+{% endif %}
+
+{% if cf.interview.sample_problems %}
+<h3>Sample problems</h3>
+<ol>{% for p in cf.interview.sample_problems %}<li>{{ p }}</li>{% endfor %}</ol>
+{% endif %}
+{% endif %}
+
+{# ----------------------------------------------------------------- MOCK #}
+{% if cf.mock_transcript %}
+<h2>4 &middot; Mock Interview Transcript</h2>
+{% for turn in cf.mock_transcript %}
+<div class="qa">
+  <strong>Q:</strong> {{ turn.question }}<br>
+  <strong>A:</strong> {{ turn.answer }}
+  {% if turn.feedback %}
+    <div class="card">
+      <strong>Score: {{ turn.feedback.score }}/10</strong>
+      {% if turn.feedback.star_check %}<br><span class="small">STAR: {{ turn.feedback.star_check }}</span>{% endif %}
+      {% if turn.feedback.improvements %}<br><span class="small">Improve: {{ turn.feedback.improvements|join("; ") }}</span>{% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{# ----------------------------------------------------------------- SOURCES #}
+<h2>Source Documents</h2>
+{% if cf.jd.company_info %}<h3>Company notes</h3><div class="card small">{{ cf.jd.company_info | nl2br }}</div>{% endif %}
+<h3>Job description</h3>
+<div class="card small">{{ cf.jd.raw_text | nl2br }}</div>
+<h3>Resume (as parsed)</h3>
+<div class="card small">{{ cf.resume.raw_text | nl2br }}</div>
+
+<p class="small" style="margin-top:30px; text-align:center; color:#94a3b8;">
+  Generated by ZeroCode Career Coach &middot; tip: use your browser's “Print → Save as PDF”.
+</p>
+
+</body>
+</html>
