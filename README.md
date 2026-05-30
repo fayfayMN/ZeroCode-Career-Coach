@@ -8,7 +8,7 @@ voice-driven mock interviews, and a single downloadable dossier — all running 
 [Ollama](https://ollama.com) model. No API keys. No data leaves your machine.
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-app-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-live%20demo-FF4B4B?logo=streamlit&logoColor=white)](https://zerocode-career-coach-ccc9w2xqr8kgtmphjtl5uz.streamlit.app/)
 [![Ollama](https://img.shields.io/badge/Ollama-local%20LLM-000000?logo=ollama&logoColor=white)](https://ollama.com/)
 [![Tests](https://img.shields.io/badge/tests-13%20passing-brightgreen)](#-tests)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -19,7 +19,7 @@ voice-driven mock interviews, and a single downloadable dossier — all running 
 
 ## 🚀 Live Demo
 
-> **▶️ Try it here:** **[`<ADD-YOUR-DEMO-URL>`](#)** &nbsp;_(deploy in a few clicks — see [below](#-deploy-a-free-public-demo))_
+> **▶️ Try it here:** **[zerocode-career-coach.streamlit.app](https://zerocode-career-coach-ccc9w2xqr8kgtmphjtl5uz.streamlit.app/)**
 >
 > ⚠️ Free public hosts (Streamlit Community Cloud, Hugging Face Spaces) **cannot run Ollama**, so
 > the hosted demo uses a free hosted model (Groq) and disables voice. **Run locally for the full,
