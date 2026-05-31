@@ -16,32 +16,26 @@ voice-driven mock interviews, and a single downloadable dossier.
 
 ## 🚦 Choose how to run it
 
-| ☁️ Live demo (Streamlit Cloud) | 🏠 Run locally (full experience) |
-|:---|:---|
-| Click the link — no install needed | Install Python + optionally Ollama |
-| Paste your free **Groq** or **OpenRouter** key in the sidebar | Use Groq/OpenRouter key **or** fully private local Ollama |
-| ❌ No voice, keyword-only match score | ✅ Voice mock interview, embedding scores |
-| **[Open demo →](https://zerocode-career-coach-ccc9w2xqr8kgtmphjtl5uz.streamlit.app/)** | ⬇️ See Quick Start below |
+> **Streamlit Cloud runs on remote servers** — it can't reach `localhost:11434` on your laptop.
+> Ollama and voice only work when you run the app **locally** in WSL. The Cloud demo is for
+> sharing with others (bring-your-own-key, no install needed).
+
+|                                  | 🏠 Local                                         | ☁️ Cloud (deployed)                             |
+|----------------------------------|--------------------------------------------------|-------------------------------------------------|
+| **How**                          | `streamlit run app.py` in WSL                    | [share.streamlit.io](https://share.streamlit.io) |
+| **Ollama**                       | ✅ All your models                                | ❌ Can't reach your machine                     |
+| **Groq / OpenRouter**            | ✅ Works                                          | ✅ Works (free-tier rate limits)                 |
+| **Voice mock interview**         | ✅ Built-in mic + Whisper                         | ❌ Disabled automatically                        |
+| **Match score with embeddings**  | ✅ Full semantic score                             | Keyword-only                                    |
 
 > **Your API key is never stored.** It lives only in your browser session and is sent directly
 > to the provider you chose. Nothing passes through any server we control.
 
+**[Open live demo →](https://zerocode-career-coach-ccc9w2xqr8kgtmphjtl5uz.streamlit.app/)**
+
 <div align="center">
 
 ![Career Coach demo walkthrough](docs/demo.gif)
-
-<details>
-<summary><b>📊 Feature comparison</b></summary>
-
-| Feature | Groq / OpenRouter key | Local Ollama |
-|--|:--:|:--:|
-| Cost | Free tier available | Free (model runs on your hardware) |
-| Privacy | Sent to the API provider | 100% local, nothing leaves your machine |
-| Setup | Paste a key in the sidebar | Install Ollama, pull one model |
-| Voice mock interview | ❌ text only | ✅ local Whisper + edge-tts |
-| Match score with embeddings | keyword-only | ✅ full semantic score |
-
-</details>
 
 ### 📸 Step-by-step screenshots
 
