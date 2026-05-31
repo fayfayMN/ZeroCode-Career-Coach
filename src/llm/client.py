@@ -176,5 +176,12 @@ def health() -> tuple[bool, str]:
             return False, "No API key provided — paste your Groq or OpenRouter key in the sidebar."
         chat([{"role": "user", "content": "ping"}], temperature=0)
         return True, f"Hosted provider OK ({settings.hosted_chat_model})"
+    except requests.ConnectionError:
+        if settings.uses_ollama:
+            return False, (
+                f"Cannot reach Ollama at {settings.ollama_host}. "
+                "Run `ollama serve` in a terminal, then try again."
+            )
+        return False, "Cannot reach the API endpoint — check your Base URL."
     except Exception as exc:  # noqa: BLE001 - surface any failure to the UI
         return False, str(exc)
