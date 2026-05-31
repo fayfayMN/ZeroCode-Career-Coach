@@ -29,6 +29,15 @@ def _is_empty(instance: BaseModel) -> bool:
     return not any(bool(v) for v in instance.model_dump().values())
 
 
+def _unwrap(data: dict, model: type[BaseModel]) -> dict:
+    """Unwrap {"FitReport": {...}} → {...} when the model wraps its reply under the class name."""
+    if isinstance(data, dict) and len(data) == 1:
+        only_key = next(iter(data))
+        if only_key.lower() == model.__name__.lower() or only_key in model.model_fields:
+            return data[only_key]
+    return data
+
+
 @lru_cache(maxsize=None)
 def load_skill(name: str) -> str:
     """Read a skill module markdown file by stem name (cached)."""
@@ -70,6 +79,7 @@ class Agent:
             {"role": "user", "content": f"{user_prompt}\n\n{schema_hint}"},
         ]
         data = client.chat_json(messages, temperature=temperature)
+        data = _unwrap(data, model)
         try:
             result = model.model_validate(data)
             if _is_empty(result):
@@ -88,7 +98,7 @@ class Agent:
                 }
             )
             data = client.chat_json(messages, temperature=0)
-            return model.model_validate(data)
+            return model.model_validate(_unwrap(data, model))
 
     def run_text(self, user_prompt: str, *, temperature: float | None = None) -> str:
         """Call the LLM for a plain-text reply (e.g. open mock-interview chat)."""
