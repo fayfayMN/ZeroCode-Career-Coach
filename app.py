@@ -76,45 +76,43 @@ with st.sidebar:
             help="WSL2 forwards port 11434 automatically — localhost:11434 works from Windows too.",
         )
 
-        # Fetch available models from Ollama; fall back to text input if unreachable.
-        try:
-            import requests as _requests
-            _tags = _requests.get(f"{ollama_host}/api/tags", timeout=3).json()
-            _chat_models = [m["name"] for m in _tags.get("models", [])
-                            if not m["name"].startswith("nomic-")]
-            _embed_models = [m["name"] for m in _tags.get("models", [])
-                             if "embed" in m["name"]]
-        except Exception:
-            _chat_models = []
-            _embed_models = []
+        # Fetch available models from Ollama (cached for 60 s so the dropdown
+        # stays populated across rerenders even if Ollama is temporarily slow).
+        @st.cache_data(ttl=60, show_spinner=False)
+        def _ollama_models(host: str) -> tuple[list[str], list[str]]:
+            try:
+                import requests as _requests
+                tags = _requests.get(f"{host}/api/tags", timeout=5).json()
+                chat = [m["name"] for m in tags.get("models", [])
+                        if not m["name"].startswith("nomic-")]
+                embed = [m["name"] for m in tags.get("models", [])
+                         if "embed" in m["name"]]
+                return chat, embed
+            except Exception:
+                return [], []
 
+        _chat_models, _embed_models = _ollama_models(ollama_host)
+
+        # Always use a selectbox when we have models; when the list is empty we
+        # still render a selectbox with the preset default so the widget type
+        # never flips (avoiding session-state loss on transient failures).
         _default_chat = preset["model"]
-        if _chat_models:
-            _idx = _chat_models.index(_default_chat) if _default_chat in _chat_models else 0
-            ollama_model = st.selectbox(
-                "Chat model", _chat_models, index=_idx, key=f"{_k}_model",
-                help="Lists models currently pulled in Ollama. Run `ollama pull <name>` to add more.",
-            )
-        else:
-            ollama_model = st.text_input(
-                "Chat model", value=_default_chat, key=f"{_k}_model",
-                help="Ollama not reachable yet — type a model name or click Check connection first.",
-            )
+        if not _chat_models:
+            _chat_models = [_default_chat]
+        _idx = _chat_models.index(_default_chat) if _default_chat in _chat_models else 0
+        ollama_model = st.selectbox(
+            "Chat model", _chat_models, index=_idx, key=f"{_k}_model",
+            help="Lists models pulled in Ollama. Pull more with `ollama pull <name>`.",
+        )
 
         _default_embed = "nomic-embed-text:latest"
-        if _embed_models:
-            _eidx = next((i for i, m in enumerate(_embed_models) if "nomic" in m), 0)
-            ollama_embed = st.selectbox(
-                "Embed model", _embed_models, index=_eidx, key=f"{_k}_embed",
-                help="Used for semantic match scoring. Leave on nomic-embed-text unless you pulled another.",
-            )
-        else:
-            ollama_embed = st.text_input(
-                "Embed model (for semantic scoring)",
-                value=_default_embed,
-                key=f"{_k}_embed",
-                help="Run: ollama pull nomic-embed-text  (leave blank to skip semantic scoring)",
-            )
+        if not _embed_models:
+            _embed_models = [_default_embed]
+        _eidx = next((i for i, m in enumerate(_embed_models) if "nomic" in m), 0)
+        ollama_embed = st.selectbox(
+            "Embed model", _embed_models, index=_eidx, key=f"{_k}_embed",
+            help="Used for semantic match scoring. Leave on nomic-embed-text unless you pulled another.",
+        )
 
         # Apply to settings
         settings.provider = "ollama"
