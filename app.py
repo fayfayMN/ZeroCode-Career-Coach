@@ -76,11 +76,15 @@ with st.sidebar:
             help="WSL2 forwards port 11434 automatically — localhost:11434 works from Windows too.",
         )
 
-        # Fetch models from Ollama when the host changes or on first load.
-        # Keep the last-known-good list in session state so the selectbox
-        # never flickers or collapses to a single entry on transient failures.
+        # Fetch models from Ollama when the host changes, on first load, or
+        # after a previous fetch failed (empty lists).  Never cache failures.
         _cache_key = f"_models_{_k}"
-        if _cache_key not in st.session_state or st.session_state.get(f"_last_host_{_k}") != ollama_host:
+        _need_fetch = (
+            _cache_key not in st.session_state
+            or st.session_state.get(f"_last_host_{_k}") != ollama_host
+            or not st.session_state[_cache_key].get("chat")  # retry after failure
+        )
+        if _need_fetch:
             try:
                 import requests as _requests
                 _resp = _requests.get(f"{ollama_host}/api/tags", timeout=5)
@@ -93,7 +97,6 @@ with st.sidebar:
                               if "embed" in m["name"]],
                 }
             except Exception:
-                # Keep previous list if available; otherwise fall back to preset.
                 if _cache_key not in st.session_state:
                     st.session_state[_cache_key] = {"chat": [], "embed": []}
             st.session_state[f"_last_host_{_k}"] = ollama_host
