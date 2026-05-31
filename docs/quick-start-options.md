@@ -16,7 +16,7 @@ If the shortcut is ever missing, recreate it by saving this as `Career Coach.bat
 ```bat
 @echo off
 start "" http://localhost:8501
-wsl -d Ubuntu bash -lc "cd /mnt/c/Users/GPU/Documents/ClaudeProjects/Career-Orchestrator-MultiAgent-Platform && ~/cc-venv/bin/streamlit run app.py"
+wsl -d Ubuntu bash -lc "cd /mnt/c/Users/GPU/Documents/ClaudeProjects/ZeroCode-Career-Coach && ~/cc-venv/bin/streamlit run app.py"
 ```
 
 ---
@@ -32,7 +32,7 @@ coach
 The alias is saved in `~/.bashrc` so it survives reboots. If it ever disappears, re-run:
 
 ```bash
-bash /mnt/c/Users/GPU/Documents/ClaudeProjects/Career-Orchestrator-MultiAgent-Platform/scripts/add_alias.sh
+bash /mnt/c/Users/GPU/Documents/ClaudeProjects/ZeroCode-Career-Coach/scripts/add_alias.sh
 source ~/.bashrc
 ```
 
@@ -48,7 +48,7 @@ Adds a one-click tab to Windows Terminal:
    - **Name:** `Career Coach`
    - **Command line:**
      ```
-     wsl.exe -d Ubuntu bash -lc "cd /mnt/c/Users/GPU/Documents/ClaudeProjects/Career-Orchestrator-MultiAgent-Platform && ~/cc-venv/bin/streamlit run app.py"
+     wsl.exe -d Ubuntu bash -lc "cd /mnt/c/Users/GPU/Documents/ClaudeProjects/ZeroCode-Career-Coach && ~/cc-venv/bin/streamlit run app.py"
      ```
    - **Starting directory:** *(leave blank)*
    - **Icon:** pick any emoji or icon you like
@@ -68,7 +68,7 @@ Adds a one-click tab to Windows Terminal:
 | What | Where |
 |------|-------|
 | Python venv | `~/cc-venv` in WSL Ubuntu |
-| App code | `/mnt/c/Users/GPU/Documents/ClaudeProjects/Career-Orchestrator-MultiAgent-Platform` |
+| App code | `/mnt/c/Users/GPU/Documents/ClaudeProjects/ZeroCode-Career-Coach` |
 | Ollama models | `qwen3:14b-q4_K_M` + `nomic-embed-text` (already pulled) |
 | Ollama | Runs automatically in WSL background |
 

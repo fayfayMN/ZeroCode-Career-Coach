@@ -156,33 +156,36 @@ def step_tailor(cf: CareerFile) -> None:
     if not kit:
         return
 
-    st.subheader("📝 Tailored resume bullets")
-    for b in kit.bullets:
-        with st.container(border=True):
-            st.markdown(f"**Before:** {b.original}")
-            st.markdown(f"**After:** {b.improved}")
-            meta = []
-            if b.keywords_used:
-                meta.append("keywords: " + ", ".join(b.keywords_used))
-            if b.rationale:
-                meta.append(b.rationale)
-            if meta:
-                st.caption(" · ".join(meta))
+    tab_bullets, tab_cover, tab_linkedin = st.tabs(["📝 Resume Bullets", "💌 Cover Letter", "🔗 LinkedIn"])
 
-    st.subheader("💌 Cover letter")
-    st.text_area("Editable — tweak then copy", value=kit.cover_letter, height=320, key="cl_edit")
+    with tab_bullets:
+        for b in kit.bullets:
+            with st.container(border=True):
+                st.markdown(f"**Before:** {b.original}")
+                st.markdown(f"**After:** {b.improved}")
+                meta = []
+                if b.keywords_used:
+                    meta.append("keywords: " + ", ".join(b.keywords_used))
+                if b.rationale:
+                    meta.append(b.rationale)
+                if meta:
+                    st.caption(" · ".join(meta))
+        if kit.voice_notes:
+            with st.expander("How your authentic voice was preserved"):
+                for n in kit.voice_notes:
+                    st.markdown(f"- {n}")
 
-    if kit.linkedin_headline or kit.linkedin_about:
-        st.subheader("🔗 LinkedIn")
-        if kit.linkedin_headline:
-            st.markdown(f"**Headline:** {kit.linkedin_headline}")
-        if kit.linkedin_about:
-            st.write(kit.linkedin_about)
+    with tab_cover:
+        st.text_area("Editable — tweak then copy", value=kit.cover_letter, height=320, key="cl_edit")
 
-    if kit.voice_notes:
-        with st.expander("How your authentic voice was preserved"):
-            for n in kit.voice_notes:
-                st.markdown(f"- {n}")
+    with tab_linkedin:
+        if kit.linkedin_headline or kit.linkedin_about:
+            if kit.linkedin_headline:
+                st.markdown(f"**Headline:** {kit.linkedin_headline}")
+            if kit.linkedin_about:
+                st.write(kit.linkedin_about)
+        else:
+            st.caption("No LinkedIn copy generated — re-run to include it.")
 
 
 # --------------------------------------------------------------------------- #

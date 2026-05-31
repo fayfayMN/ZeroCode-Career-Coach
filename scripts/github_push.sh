@@ -2,7 +2,7 @@
 set -e
 export PATH="$HOME/bin:$PATH"
 
-REPO_DIR="/mnt/c/Users/GPU/Documents/ClaudeProjects/Career-Orchestrator-MultiAgent-Platform"
+REPO_DIR="/mnt/c/Users/GPU/Documents/ClaudeProjects/ZeroCode-Career-Coach"
 REPO_NAME="ZeroCode-Career-Coach"
 
 cd "$REPO_DIR"

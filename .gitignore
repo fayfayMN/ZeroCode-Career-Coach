@@ -22,3 +22,6 @@ _dev_*.html           # local dev test outputs
 # OS
 .DS_Store
 Thumbs.db
+
+# Personal local notes (not for repo)
+MY_LOCAL_SETUP.md

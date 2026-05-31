@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd /mnt/c/Users/GPU/Documents/ClaudeProjects/Career-Orchestrator-MultiAgent-Platform
+cd /mnt/c/Users/GPU/Documents/ClaudeProjects/ZeroCode-Career-Coach
 echo "=== git status ==="
 git status
 echo ""
