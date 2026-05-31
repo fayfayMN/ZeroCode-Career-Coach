@@ -75,16 +75,47 @@ with st.sidebar:
             key=f"{_k}_host",
             help="WSL2 forwards port 11434 automatically — localhost:11434 works from Windows too.",
         )
-        ollama_model = st.text_input(
-            "Chat model", value=preset["model"], key=f"{_k}_model",
-            help="Run: ollama pull <model-name>",
-        )
-        ollama_embed = st.text_input(
-            "Embed model (for semantic scoring)",
-            value="nomic-embed-text",
-            key=f"{_k}_embed",
-            help="Run: ollama pull nomic-embed-text  (leave blank to skip semantic scoring)",
-        )
+
+        # Fetch available models from Ollama; fall back to text input if unreachable.
+        try:
+            import requests as _requests
+            _tags = _requests.get(f"{ollama_host}/api/tags", timeout=3).json()
+            _chat_models = [m["name"] for m in _tags.get("models", [])
+                            if not m["name"].startswith("nomic-")]
+            _embed_models = [m["name"] for m in _tags.get("models", [])
+                             if "embed" in m["name"]]
+        except Exception:
+            _chat_models = []
+            _embed_models = []
+
+        _default_chat = preset["model"]
+        if _chat_models:
+            _idx = _chat_models.index(_default_chat) if _default_chat in _chat_models else 0
+            ollama_model = st.selectbox(
+                "Chat model", _chat_models, index=_idx, key=f"{_k}_model",
+                help="Lists models currently pulled in Ollama. Run `ollama pull <name>` to add more.",
+            )
+        else:
+            ollama_model = st.text_input(
+                "Chat model", value=_default_chat, key=f"{_k}_model",
+                help="Ollama not reachable yet — type a model name or click Check connection first.",
+            )
+
+        _default_embed = "nomic-embed-text:latest"
+        if _embed_models:
+            _eidx = next((i for i, m in enumerate(_embed_models) if "nomic" in m), 0)
+            ollama_embed = st.selectbox(
+                "Embed model", _embed_models, index=_eidx, key=f"{_k}_embed",
+                help="Used for semantic match scoring. Leave on nomic-embed-text unless you pulled another.",
+            )
+        else:
+            ollama_embed = st.text_input(
+                "Embed model (for semantic scoring)",
+                value=_default_embed,
+                key=f"{_k}_embed",
+                help="Run: ollama pull nomic-embed-text  (leave blank to skip semantic scoring)",
+            )
+
         # Apply to settings
         settings.provider = "ollama"
         settings.ollama_host = ollama_host
