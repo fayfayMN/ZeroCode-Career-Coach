@@ -76,26 +76,33 @@ with st.sidebar:
             help="WSL2 forwards port 11434 automatically — localhost:11434 works from Windows too.",
         )
 
-        # Fetch available models from Ollama (cached for 60 s so the dropdown
-        # stays populated across rerenders even if Ollama is temporarily slow).
-        @st.cache_data(ttl=60, show_spinner=False)
-        def _ollama_models(host: str) -> tuple[list[str], list[str]]:
+        # Fetch models from Ollama when the host changes or on first load.
+        # Keep the last-known-good list in session state so the selectbox
+        # never flickers or collapses to a single entry on transient failures.
+        _cache_key = f"_models_{_k}"
+        if _cache_key not in st.session_state or st.session_state.get(f"_last_host_{_k}") != ollama_host:
             try:
                 import requests as _requests
-                tags = _requests.get(f"{host}/api/tags", timeout=5).json()
-                chat = [m["name"] for m in tags.get("models", [])
-                        if not m["name"].startswith("nomic-")]
-                embed = [m["name"] for m in tags.get("models", [])
-                         if "embed" in m["name"]]
-                return chat, embed
+                _resp = _requests.get(f"{ollama_host}/api/tags", timeout=5)
+                _resp.raise_for_status()
+                _tags = _resp.json()
+                st.session_state[_cache_key] = {
+                    "chat": [m["name"] for m in _tags.get("models", [])
+                             if not m["name"].startswith("nomic-")],
+                    "embed": [m["name"] for m in _tags.get("models", [])
+                              if "embed" in m["name"]],
+                }
             except Exception:
-                return [], []
+                # Keep previous list if available; otherwise fall back to preset.
+                if _cache_key not in st.session_state:
+                    st.session_state[_cache_key] = {"chat": [], "embed": []}
+            st.session_state[f"_last_host_{_k}"] = ollama_host
 
-        _chat_models, _embed_models = _ollama_models(ollama_host)
+        _chat_models = st.session_state[_cache_key]["chat"]
+        _embed_models = st.session_state[_cache_key]["embed"]
 
-        # Always use a selectbox when we have models; when the list is empty we
-        # still render a selectbox with the preset default so the widget type
-        # never flips (avoiding session-state loss on transient failures).
+        # Always use a selectbox — fall back to [preset default] so the widget
+        # type never flips and session state survives transient failures.
         _default_chat = preset["model"]
         if not _chat_models:
             _chat_models = [_default_chat]
@@ -141,6 +148,10 @@ with st.sidebar:
         st.warning("Paste an API key above to enable the AI features.")
 
     if st.button("🔌 Check connection"):
+        # Refresh the model cache so the dropdown picks up newly pulled models.
+        for _k in list(st.session_state.keys()):
+            if _k.startswith("_models_") or _k.startswith("_last_host_"):
+                del st.session_state[_k]
         ok, msg = client.health()
         (st.success if ok else st.error)(msg)
 
