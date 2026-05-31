@@ -61,7 +61,7 @@ def _ollama_chat(messages: list[dict[str, str]], temperature: float, json_mode: 
         "model": settings.chat_model,
         "messages": messages,
         "stream": False,
-        "options": {"temperature": temperature},
+        "options": {"temperature": temperature, "num_ctx": settings.ollama_num_ctx},
     }
     if json_mode:
         payload["format"] = "json"

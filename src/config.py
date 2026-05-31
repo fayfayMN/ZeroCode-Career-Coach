@@ -53,6 +53,7 @@ class Settings:
     # Generation controls
     temperature: float = field(default_factory=lambda: float(_env("CC_TEMPERATURE", "0.4")))
     request_timeout: int = field(default_factory=lambda: int(_env("CC_TIMEOUT", "180")))
+    ollama_num_ctx: int = field(default_factory=lambda: int(_env("CC_NUM_CTX", "8192")))
 
     # Voice
     whisper_model: str = field(default_factory=lambda: _env("CC_WHISPER_MODEL", "base"))
