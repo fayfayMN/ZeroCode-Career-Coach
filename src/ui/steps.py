@@ -232,6 +232,11 @@ def _render_mock(cf: CareerFile) -> None:
         st.info("Build a prep plan first (left tab) to seed the question bank.")
         return
 
+    # Track how many answers have been recorded so the mic key rotates
+    # after each submission, preventing stale audio from persisting.
+    if "_mock_q_idx" not in st.session_state:
+        st.session_state._mock_q_idx = 0
+
     coach = Coach()
     asked = [t.question for t in cf.mock_transcript]
     current = coach.next_question(cf.interview, asked)
@@ -261,6 +266,7 @@ def _render_mock(cf: CareerFile) -> None:
                    "or reset the mock to practise again.")
         if st.button("🔄 Restart mock"):
             cf.mock_transcript = []
+            st.session_state._mock_q_idx = 0
             st.rerun()
         return
 
@@ -281,32 +287,46 @@ def _render_mock(cf: CareerFile) -> None:
             lambda: coach.evaluate_answer(current, answer, cf.jd, cf.resume),
         )
         cf.mock_transcript.append(MockTurn(question=current, answer=answer, feedback=fb))
+        st.session_state._mock_q_idx += 1
         st.rerun()
 
 
 def _capture_answer() -> str:
     """Answer via voice (local Whisper) or text. Returns the answer text."""
-    mode = "Text"
-    if settings.enable_voice:
-        mode = st.radio("Answer by", ["Voice", "Text"], horizontal=True)
+    mode = settings.enable_voice and st.radio(
+        "Answer by", ["Voice", "Text"], horizontal=True, key="mock_mode",
+    ) or "Text"
 
     if mode == "Voice":
         try:
             from streamlit_mic_recorder import mic_recorder
-
-            audio = mic_recorder(start_prompt="🎤 Record", stop_prompt="⏹ Stop",
-                                 key="mock_mic", format="wav")
-            if audio and audio.get("bytes"):
-                from ..voice.stt import transcribe_bytes
-
-                with st.spinner("Transcribing…"):
-                    text = transcribe_bytes(audio["bytes"])
-                st.text_area("Transcript (edit if needed)", value=text, key="voice_tx")
-                return st.session_state.get("voice_tx", text)
         except ImportError:
             st.warning("Voice components not installed — falling back to text. "
                        "Install streamlit-mic-recorder + faster-whisper for voice.")
-        return st.text_area("Your answer", key="mock_text_fallback")
+            return st.text_area("Your answer", key="mock_text_fallback")
+
+        # Rotate the mic key per question so a stale recording never survives
+        # a submit rerun.
+        import streamlit as _st
+        q_idx = _st.session_state.get("_mock_q_idx", 0)
+        audio = mic_recorder(
+            start_prompt="🎤 Record", stop_prompt="⏹ Stop",
+            key=f"mock_mic_{q_idx}", format="wav",
+        )
+
+        if audio and audio.get("bytes"):
+            try:
+                from ..voice.stt import transcribe_bytes
+                with st.spinner("Transcribing…"):
+                    text = transcribe_bytes(audio["bytes"])
+                st.text_area("Transcript (edit if needed)", value=text, key=f"voice_tx_{q_idx}")
+                return st.session_state.get(f"voice_tx_{q_idx}", text)
+            except Exception as exc:
+                st.error(f"Transcription failed: {exc}")
+        else:
+            st.caption("Click Record to capture your answer.")
+
+        return st.text_area("Your answer", key=f"mock_text_backup_{q_idx}")
 
     return st.text_area("Your answer", key="mock_text")
 
