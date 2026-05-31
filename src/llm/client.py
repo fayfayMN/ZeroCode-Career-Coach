@@ -80,8 +80,8 @@ def _ollama_chat(messages: list[dict[str, str]], temperature: float, json_mode: 
 def _hosted_chat(messages: list[dict[str, str]], temperature: float, json_mode: bool) -> str:
     if not settings.hosted_api_key:
         raise LLMError(
-            "Provider is 'hosted' but CC_HOSTED_API_KEY is empty. "
-            "Set a free Groq/OpenRouter key, or use CC_PROVIDER=ollama locally."
+            "No API key provided. Paste your Groq or OpenRouter key in the sidebar "
+            "Model setup section to enable AI features."
         )
     url = f"{settings.hosted_base_url.rstrip('/')}/chat/completions"
     payload: dict[str, Any] = {
@@ -172,6 +172,8 @@ def health() -> tuple[bool, str]:
                 )
             return True, f"Ollama OK — models: {', '.join(tags) or 'none'}"
         # hosted
+        if not settings.hosted_api_key:
+            return False, "No API key provided — paste your Groq or OpenRouter key in the sidebar."
         chat([{"role": "user", "content": "ping"}], temperature=0)
         return True, f"Hosted provider OK ({settings.hosted_chat_model})"
     except Exception as exc:  # noqa: BLE001 - surface any failure to the UI

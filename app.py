@@ -1,13 +1,14 @@
 """Career Coach — Streamlit entry point.
 
-A focused, recruiter-designed job-search assistant powered by a free local
-Ollama model. Three agents (Recruiter, Writer, Coach) + a deterministic
-orchestrator walk the seeker from "should I apply?" to a downloadable dossier.
+A focused, recruiter-designed job-search assistant. Users supply their own API
+key in the sidebar — no server-side credentials required.
+
+Supported providers:
+  * Groq  (free tier, fast) — https://console.groq.com/keys
+  * OpenRouter (pay-per-use, 200+ models) — https://openrouter.ai/keys
+  * Ollama (local, private) — run `ollama serve` first
 
 Run locally:
-    ollama serve              # in another terminal
-    ollama pull qwen2.5:7b
-    ollama pull nomic-embed-text
     streamlit run app.py
 """
 from __future__ import annotations
@@ -34,20 +35,88 @@ STEPS = {
     "5 · Career Dossier": steps.step_dossier,
 }
 
+# Preset options shown in the model dropdown.
+_PROVIDER_PRESETS = {
+    "Groq (free tier)": {
+        "provider": "hosted",
+        "base_url": "https://api.groq.com/openai/v1",
+        "model": "llama-3.3-70b-versatile",
+    },
+    "OpenRouter": {
+        "provider": "hosted",
+        "base_url": "https://openrouter.ai/api/v1",
+        "model": "meta-llama/llama-3.3-70b-instruct:free",
+    },
+    "Ollama (local)": {
+        "provider": "ollama",
+        "base_url": "http://localhost:11434",
+        "model": "qwen3:14b-q4_K_M",
+    },
+}
+
 # --- sidebar -----------------------------------------------------------------
 with st.sidebar:
     st.title("🎯 ZeroCode Career Coach")
-    st.caption("Local • private • free (Ollama)")
-
-    choice = st.radio("Steps", list(STEPS.keys()), label_visibility="collapsed")
+    st.caption("Bring your own API key — nothing is stored server-side.")
 
     st.divider()
-    st.caption(f"Provider: **{settings.provider}**")
-    if settings.uses_ollama:
-        st.caption(f"Model: `{settings.chat_model}`")
-    if st.button("🔌 Check model connection"):
+    st.subheader("Model setup")
+
+    preset_name = st.selectbox("Provider", list(_PROVIDER_PRESETS.keys()))
+    preset = _PROVIDER_PRESETS[preset_name]
+
+    # Keys include preset_name so widgets reset their defaults when provider changes.
+    _k = preset_name.replace(" ", "_").replace("(", "").replace(")", "")
+
+    if preset["provider"] == "ollama":
+        ollama_host = st.text_input(
+            "Ollama host",
+            value=preset["base_url"],
+            key=f"{_k}_host",
+            help="WSL2 forwards port 11434 automatically — localhost:11434 works from Windows too.",
+        )
+        ollama_model = st.text_input(
+            "Chat model", value=preset["model"], key=f"{_k}_model",
+            help="Run: ollama pull <model-name>",
+        )
+        ollama_embed = st.text_input(
+            "Embed model (for semantic scoring)",
+            value="nomic-embed-text",
+            key=f"{_k}_embed",
+            help="Run: ollama pull nomic-embed-text  (leave blank to skip semantic scoring)",
+        )
+        # Apply to settings
+        settings.provider = "ollama"
+        settings.ollama_host = ollama_host
+        settings.chat_model = ollama_model
+        settings.embed_model = ollama_embed or "nomic-embed-text"
+        api_key_ok = True  # no key needed for local Ollama
+    else:
+        api_key = st.text_input(
+            "API key",
+            type="password",
+            placeholder="Paste your Groq / OpenRouter key here",
+            key=f"{_k}_apikey",
+            help="Your key is used only for this session and never stored.",
+        )
+        base_url = st.text_input("Base URL", value=preset["base_url"], key=f"{_k}_base_url")
+        model_name = st.text_input("Model", value=preset["model"], key=f"{_k}_model")
+        # Apply to settings
+        settings.provider = "hosted"
+        settings.hosted_api_key = api_key
+        settings.hosted_base_url = base_url
+        settings.hosted_chat_model = model_name
+        api_key_ok = bool(api_key)
+
+    if not api_key_ok:
+        st.warning("Paste an API key above to enable the AI features.")
+
+    if st.button("🔌 Check connection"):
         ok, msg = client.health()
         (st.success if ok else st.error)(msg)
+
+    st.divider()
+    choice = st.radio("Steps", list(STEPS.keys()), label_visibility="collapsed")
 
     st.divider()
     if cf.resume.raw_text:
