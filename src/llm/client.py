@@ -98,7 +98,15 @@ def _hosted_chat(messages: list[dict[str, str]], temperature: float, json_mode: 
         resp = requests.post(url, json=payload, headers=headers, timeout=settings.request_timeout)
         resp.raise_for_status()
     except requests.RequestException as exc:  # pragma: no cover - network
-        raise LLMError(f"Hosted provider request failed: {exc}") from exc
+        msg = f"Hosted provider request failed: {exc}"
+        resp = getattr(exc, "response", None)
+        if resp is not None and resp.status_code == 429:
+            msg = (
+                "Rate limit hit — your free API quota is used up for the moment. "
+                "Switch to a different provider in the sidebar (OpenRouter has "
+                "higher free limits), wait a minute, or use local Ollama."
+            )
+        raise LLMError(msg) from exc
     data = resp.json()
     return data["choices"][0]["message"]["content"]
 
