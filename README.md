@@ -208,16 +208,25 @@ pip install -r requirements-voice.txt
 
 1. Fork/push this repo to GitHub.
 2. Create an app on **[share.streamlit.io](https://share.streamlit.io)** pointing at `app.py`.
-3. No secrets required — users paste their own API key in the sidebar when they visit.
-4. If you want to pre-configure a default hosted model (so the app works without a key), add
-   to **Settings → Secrets**:
-   ```toml
-   CC_PROVIDER = "hosted"
-   CC_HOSTED_BASE_URL = "https://api.groq.com/openai/v1"
-   CC_HOSTED_API_KEY = "gsk_your_key_here"
-   CC_HOSTED_CHAT_MODEL = "llama-3.3-70b-versatile"
-   ```
-   See [`.streamlit/secrets.toml.example`](.streamlit/secrets.toml.example) for all options.
+3. **No secrets required** — visitors paste their own API key in the sidebar.
+
+If you want to pre-configure a default hosted key (so visitors don't need one), add
+to **Settings → Secrets**:
+
+```toml
+CC_PROVIDER = "hosted"
+CC_HOSTED_BASE_URL = "https://openrouter.ai/api/v1"
+CC_HOSTED_API_KEY = "sk-or-v1-your-openrouter-key"
+CC_HOSTED_CHAT_MODEL = "google/gemini-2.0-flash-001"
+CC_MAX_TOKENS = "4096"
+```
+
+> ⚠️ **Avoid Groq for deployments.** Groq's free tier (30 req/min, ~14k tokens/min) is
+> too tight for the Writer agent, which generates a full cover letter + resume bullets +
+> LinkedIn copy. OpenRouter's free models (`google/gemini-2.0-flash-001`,
+> `meta-llama/llama-3.3-70b-instruct:free`) have much higher limits and work reliably.
+
+See [`.streamlit/secrets.toml.example`](.streamlit/secrets.toml.example) for all options.
 
 ---
 
