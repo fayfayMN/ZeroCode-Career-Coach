@@ -1,7 +1,9 @@
 # Voice add-ons — local use only (not needed on Streamlit Community Cloud).
 # Install on top of requirements.txt:
 #   pip install -r requirements-voice.txt
+#
+# Mic capture uses Streamlit's built-in st.audio_input (1.31+), so
+# streamlit-mic-recorder is no longer required.
 
-streamlit-mic-recorder>=0.0.8   # browser mic capture
 faster-whisper>=1.0             # local STT — pulls ctranslate2 (~500 MB)
 edge-tts>=6.1                   # coach TTS (free, needs internet)

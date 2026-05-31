@@ -20,7 +20,6 @@ from ..parsers.resume_parser import parse_resume
 # Check once at import whether voice packages are available, so we can
 # hide the Voice radio on Streamlit Cloud where they aren't installed.
 try:
-    from streamlit_mic_recorder import mic_recorder  # noqa: F401
     from ..voice.stt import transcribe_bytes  # noqa: F401
 
     _VOICE_AVAILABLE = True
@@ -302,36 +301,31 @@ def _render_mock(cf: CareerFile) -> None:
 
 
 def _capture_answer() -> str:
-    """Answer via voice (local Whisper) or text. Returns the answer text."""
+    """Answer via voice (built-in st.audio_input + local Whisper) or text."""
     mode = "Text"
     if settings.enable_voice and _VOICE_AVAILABLE:
         mode = st.radio("Answer by", ["Voice", "Text"], horizontal=True, key="mock_mode")
 
     if mode == "Voice":
-        from streamlit_mic_recorder import mic_recorder
         from ..voice.stt import transcribe_bytes
 
-        # Rotate the mic key per question so a stale recording never survives
-        # a submit rerun.
         import streamlit as _st
         q_idx = _st.session_state.get("_mock_q_idx", 0)
-        audio = mic_recorder(
-            start_prompt="🎤 Record", stop_prompt="⏹ Stop",
-            key=f"mock_mic_{q_idx}", format="wav",
+        audio_bytes = st.audio_input(
+            "Record your answer", key=f"mock_mic_{q_idx}",
+            help="Uses your browser's built-in recorder. Grant mic permission if prompted.",
         )
 
-        if audio and audio.get("bytes"):
+        if audio_bytes:
             try:
                 with st.spinner("Transcribing…"):
-                    text = transcribe_bytes(audio["bytes"])
+                    text = transcribe_bytes(audio_bytes)
                 st.text_area("Transcript (edit if needed)", value=text, key=f"voice_tx_{q_idx}")
                 return st.session_state.get(f"voice_tx_{q_idx}", text)
             except Exception as exc:
                 st.error(f"Transcription failed: {exc}")
-        else:
-            st.caption("Click Record to capture your answer.")
 
-        return st.text_area("Your answer", key=f"mock_text_backup_{q_idx}")
+        return st.text_area("Or type your answer", key=f"mock_text_backup_{q_idx}")
 
     return st.text_area("Your answer", key="mock_text")
 
