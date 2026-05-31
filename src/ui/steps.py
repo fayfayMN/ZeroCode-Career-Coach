@@ -17,6 +17,16 @@ from ..orchestrator.session import CareerFile
 from ..parsers.jd_parser import parse_jd
 from ..parsers.resume_parser import parse_resume
 
+# Check once at import whether voice packages are available, so we can
+# hide the Voice radio on Streamlit Cloud where they aren't installed.
+try:
+    from streamlit_mic_recorder import mic_recorder  # noqa: F401
+    from ..voice.stt import transcribe_bytes  # noqa: F401
+
+    _VOICE_AVAILABLE = True
+except ImportError:
+    _VOICE_AVAILABLE = False
+
 
 def _run_agent(label: str, fn):
     """Run an agent call with a spinner and friendly error surfacing."""
@@ -272,8 +282,8 @@ def _render_mock(cf: CareerFile) -> None:
 
     st.markdown(f"### 🎙️ Current question\n> {current}")
 
-    # optional: coach reads the question aloud
-    if settings.enable_voice and st.toggle("🔊 Read question aloud"):
+    # optional: coach reads the question aloud (local-only)
+    if _VOICE_AVAILABLE and settings.enable_voice and st.toggle("🔊 Read question aloud"):
         from ..voice.tts import synthesize
 
         audio = synthesize(current)
@@ -293,17 +303,13 @@ def _render_mock(cf: CareerFile) -> None:
 
 def _capture_answer() -> str:
     """Answer via voice (local Whisper) or text. Returns the answer text."""
-    mode = settings.enable_voice and st.radio(
-        "Answer by", ["Voice", "Text"], horizontal=True, key="mock_mode",
-    ) or "Text"
+    mode = "Text"
+    if settings.enable_voice and _VOICE_AVAILABLE:
+        mode = st.radio("Answer by", ["Voice", "Text"], horizontal=True, key="mock_mode")
 
     if mode == "Voice":
-        try:
-            from streamlit_mic_recorder import mic_recorder
-        except ImportError:
-            st.warning("Voice components not installed — falling back to text. "
-                       "Install streamlit-mic-recorder + faster-whisper for voice.")
-            return st.text_area("Your answer", key="mock_text_fallback")
+        from streamlit_mic_recorder import mic_recorder
+        from ..voice.stt import transcribe_bytes
 
         # Rotate the mic key per question so a stale recording never survives
         # a submit rerun.
@@ -316,7 +322,6 @@ def _capture_answer() -> str:
 
         if audio and audio.get("bytes"):
             try:
-                from ..voice.stt import transcribe_bytes
                 with st.spinner("Transcribing…"):
                     text = transcribe_bytes(audio["bytes"])
                 st.text_area("Transcript (edit if needed)", value=text, key=f"voice_tx_{q_idx}")

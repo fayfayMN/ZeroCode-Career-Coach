@@ -89,6 +89,7 @@ def _hosted_chat(messages: list[dict[str, str]], temperature: float, json_mode: 
         "model": settings.hosted_chat_model,
         "messages": messages,
         "temperature": temperature,
+        "max_tokens": settings.hosted_max_tokens,
     }
     if json_mode:
         payload["response_format"] = {"type": "json_object"}
