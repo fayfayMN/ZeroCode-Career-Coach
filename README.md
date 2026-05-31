@@ -126,9 +126,9 @@ streamlit run app.py    # → http://localhost:8501
 
 - **Provider** → `Ollama (local)` — no API key field appears
 - **Ollama host** → `http://localhost:11434` (correct default for WSL and native installs)
-- **Chat model** → match whatever you pulled (e.g. `qwen3:14b-q4_K_M`)
-- **Embed model** → `nomic-embed-text` (leave blank to fall back to keyword-only scoring)
-- Click **"Check connection"** — you'll see which models Ollama has available
+- **Chat model** → dropdown auto-populated from pulled models (gemma4, qwen3, deepseek-r1, etc.); fall back to a text field if Ollama is offline
+- **Embed model** → same — picks up `nomic-embed-text` automatically when available
+- Click **"Check connection"** — turns green if Ollama is reachable and the selected model is pulled
 
 <details>
 <summary><b>Windows + WSL tip</b></summary>
@@ -157,8 +157,8 @@ Ollama host in the sidebar to `http://<your-wsl-ip>:11434`
 |------|-----------|--------------|
 | **1 · Setup** | Upload resume (PDF/DOCX/TXT), paste job description, add optional company notes and your working-style preferences | Parsed resume, saved job details |
 | **2 · Fit & Strategy** | Click **"Analyze fit"** | Score 0–100, matched/missing ATS keywords, strengths & gaps, action plan |
-| **3 · Tailor Application** | Click **"Generate tailored resume + cover letter"** | Improved resume bullets (XYZ formula), cover letter, LinkedIn suggestions |
-| **4 · Interview Coach** | Click **"Build interview prep plan"**, then start a mock interview (voice or text) | Question bank, technical topics, STAR-graded feedback |
+| **3 · Tailor Application** | Click **"Generate tailored resume + cover letter"** | Tabbed layout: improved resume bullets (XYZ formula), cover letter, LinkedIn headline & about |
+| **4 · Interview Coach** | Click **"Build interview prep plan"**, then run a mock interview (voice recording or text) | Question bank, technical topics, STAR-graded feedback after each answer |
 | **5 · Career Dossier** | Click **"Download Career Dossier"** | One self-contained HTML file — open offline, print to PDF |
 
 **Why the score is trustworthy:** the match score is **deterministic** (keyword coverage +
@@ -244,6 +244,9 @@ always takes precedence during a live session.
 | `CC_WHISPER_MODEL` | `base` | Whisper size (`tiny` … `large-v3`) |
 | `CC_WHISPER_DEVICE` | `cpu` | `cuda` for GPU (auto-falls back to CPU) |
 | `CC_ENABLE_VOICE` | `1` | `0` to disable voice features entirely |
+| `CC_NUM_CTX` | `8192` | Ollama context window size (tokens) |
+| `CC_TEMPERATURE` | `0.4` | LLM temperature for generation |
+| `CC_TIMEOUT` | `180` | Request timeout in seconds |
 
 ---
 
