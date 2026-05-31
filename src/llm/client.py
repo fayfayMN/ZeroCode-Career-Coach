@@ -65,6 +65,7 @@ def _ollama_chat(messages: list[dict[str, str]], temperature: float, json_mode: 
     }
     if json_mode:
         payload["format"] = "json"
+        payload["options"]["think"] = False  # qwen3/deepseek: skip thinking for JSON calls
     try:
         resp = requests.post(url, json=payload, timeout=settings.request_timeout)
         resp.raise_for_status()

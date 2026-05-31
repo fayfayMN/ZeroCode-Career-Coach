@@ -20,6 +20,15 @@ SKILLS_DIR = Path(__file__).resolve().parent.parent / "skills"
 T = TypeVar("T", bound=BaseModel)
 
 
+class _EmptyResponseError(Exception):
+    """Raised when the model returns a valid but fully-empty JSON object."""
+
+
+def _is_empty(instance: BaseModel) -> bool:
+    """Return True if every field on the model is falsy (empty list, empty string, 0, None)."""
+    return not any(bool(v) for v in instance.model_dump().values())
+
+
 @lru_cache(maxsize=None)
 def load_skill(name: str) -> str:
     """Read a skill module markdown file by stem name (cached)."""
@@ -62,15 +71,20 @@ class Agent:
         ]
         data = client.chat_json(messages, temperature=temperature)
         try:
-            return model.model_validate(data)
-        except ValidationError:
-            # One corrective retry — common with smaller local models.
+            result = model.model_validate(data)
+            if _is_empty(result):
+                raise _EmptyResponseError
+            return result
+        except (ValidationError, _EmptyResponseError):
+            # One corrective retry — common with smaller local models or when
+            # thinking models return {} after exhausting their reasoning budget.
             messages.append({"role": "assistant", "content": str(data)})
             messages.append(
                 {
                     "role": "user",
-                    "content": "That did not match the schema. Return ONLY a valid "
-                    "JSON object with exactly the required keys and types.",
+                    "content": "Your previous response was empty or did not match the "
+                    "schema. Return ONLY a populated JSON object with exactly the "
+                    "required keys filled in. Do not output a thinking block.",
                 }
             )
             data = client.chat_json(messages, temperature=0)
